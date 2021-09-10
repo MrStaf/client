@@ -36,10 +36,8 @@ export default function Footer({ podcasts, active, setActive }) {
 
   // Effects
   useEffect(() => {
-    // console.log(active);
     if (active === undefined) {
       setItem([podcasts?.items[podcasts?.items?.length - 1]]);
-      sourceRef.current.src = podcasts?.items[podcasts?.items?.length - 1].enclosure.url;
     } else {
       setItem(
         podcasts.items.filter((itm, index) => {
@@ -88,9 +86,18 @@ export default function Footer({ podcasts, active, setActive }) {
   };
 
   const togglePlayPause = () => {
-    // console.log(active);
     if (!active) {
       setActive(item[0].guid);
+
+      const prevValue = isPlaying;
+      setIsPlaying(!prevValue);
+      if (!prevValue) {
+        audioPlayer.current.play();
+        animationRef.current = requestAnimationFrame(whilePlaying);
+      } else {
+        audioPlayer.current.pause();
+        cancelAnimationFrame(animationRef.current);
+      }
     } else {
       const prevValue = isPlaying;
       setIsPlaying(!prevValue);
@@ -156,7 +163,7 @@ export default function Footer({ podcasts, active, setActive }) {
             nextSound();
             togglePlayPause();
           }}>
-          <source ref={sourceRef}></source>
+          <source ref={sourceRef} preload="metadata"></source>
         </audio>
         {active && (
           <svg className="hidden cursor-pointer md:block" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={previousSound}>
